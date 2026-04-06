@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monkey DS — Generador de documentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green: #1B4D3E;
+    --green-light: #2A6B55;
+    --green-bg: #E8F5EE;
+    --amber: #E8821A;
+    --amber-bg: #FEF3E6;
+    --surface: #FAFAF8;
+    --card: #FFFFFF;
+    --border: #E8E6E0;
+    --border-strong: #D0CEC7;
+    --text: #1A1A18;
+    --text-2: #5A5A55;
+    --text-3: #9A9A90;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .topbar {
+    background: var(--green);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .topbar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-logo span {
+    color: var(--amber);
+  }
+
+  .topbar-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  .topbar-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+  }
+
+  /* Layout */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 2rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+
+  /* Form elements */
+  .form-row { margin-bottom: 1.25rem; }
+  .form-row:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus {
+    border-color: var(--green);
+    background: #fff;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.6;
+  }
+
+  /* Tags */
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .tag.active {
+    background: var(--green-bg);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  /* Checkboxes */
+  .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--green);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Button */
+  .btn-generate {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-generate:hover { background: var(--green-light); }
+  .btn-generate:active { transform: scale(0.99); }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Output */
+  .output-area {
+    display: none;
+    margin-top: 1.5rem;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .output-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .output-actions { display: flex; gap: 8px; }
+
+  .btn-action {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-2);
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn-action:hover {
+    background: var(--surface);
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  .btn-action.primary {
+    background: var(--green);
+    color: #fff;
+    border-color: var(--green);
+  }
+
+  .btn-action.primary:hover { background: var(--green-light); }
+
+  .output-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  /* Image upload */
+  .upload-zone {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 24px; margin-bottom: 8px; }
+
+  .upload-label {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  .upload-label strong { color: var(--green); }
+
+  .image-preview {
+    display: none;
+    margin-top: 12px;
+    position: relative;
+  }
+
+  .image-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+
+  .btn-remove-img {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .mode-btn.active {
+    background: var(--green-bg);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  .mode-panel { display: none; }
+  .mode-panel.active { display: block; }
+
+  /* Notice */
+  .notice {
+    background: var(--amber-bg);
+    border: 1px solid #F5C07A;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: #7A4A10;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .notice-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Monkey<span>.</span></div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-subtitle">Generador de documentación de componentes</div>
+</div>
+
+<div class="container">
+  <h1 class="page-title">Documentá un componente</h1>
+  <p class="page-subtitle">Completá los campos y la IA genera la documentación siguiendo la estructura del Monkey DS.</p>
+
+  <div class="notice">
+    <span class="notice-icon">ℹ</span>
+    <span>Esta herramienta usa la API de Claude. Asegurate de que tu equipo tenga acceso a la URL donde esté hosteada.</span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="card-title">Componente</div>
+
+        <div class="mode-toggle">
+          <button class="mode-btn active" onclick="setMode('manual')" id="btn-mode-manual">Manual</button>
+          <button class="mode-btn" onclick="setMode('image')" id="btn-mode-image">Desde imagen</button>
+        </div>
+
+        <!-- MANUAL MODE -->
+        <div class="mode-panel active" id="panel-manual">
+          <div class="form-row">
+            <label>Nombre</label>
+            <input type="text" id="comp-name" placeholder="Ej: Modal, Toast, InputField..." />
+          </div>
+          <div class="form-row">
+            <label>Descripción breve</label>
+            <textarea id="comp-desc" placeholder="¿Qué hace? ¿Cuándo se usa?"></textarea>
+          </div>
+          <div class="form-row">
+            <label>Elementos anatómicos (uno por línea)</label>
+            <textarea id="comp-anatomy" placeholder="1. Título&#10;2. Descripción&#10;3. Botón de acción&#10;4. Ícono" style="min-height:110px"></textarea>
+          </div>
+          <div class="form-row">
+            <label>Notas / restricciones de uso</label>
+            <textarea id="comp-notes" placeholder="Ej: No se puede usar más de uno por pantalla..."></textarea>
+          </div>
+        </div>
+
+        <!-- IMAGE MODE -->
+        <div class="mode-panel" id="panel-image">
+          <div class="form-row">
+            <label>Imagen del componente <span style="color:var(--text-3);font-weight:400">(export de Figma, screenshot, etc.)</span></label>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="img-input" accept="image/png,image/jpeg,image/webp" onchange="handleImageUpload(event)" />
+              <div class="upload-icon">↑</div>
+              <div class="upload-label">
+                <strong>Arrastrá o clickeá para subir</strong><br>
+                PNG, JPG o WebP · Máx 5MB
+              </div>
+            </div>
+            <div class="image-preview" id="img-preview">
+              <img id="preview-img" src="" alt="Preview" />
+              <button class="btn-remove-img" onclick="removeImage()" title="Quitar imagen">×</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Nombre del componente</label>
+            <input type="text" id="comp-name-img" placeholder="Ej: Modal, Toast, InputField..." />
+          </div>
+          <div class="form-row">
+            <label>Descripción adicional <span style="color:var(--text-3);font-weight:400">(opcional)</span></label>
+            <textarea id="comp-desc-img" placeholder="Agregá contexto que no se vea en la imagen: comportamientos específicos, restricciones, casos de uso..." style="min-height:80px"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Configuración</div>
+        <div class="form-row">
+          <label>Dispositivos disponibles</label>
+          <div class="tag-row" id="device-tags">
+            <span class="tag active" data-val="Mobile">Mobile</span>
+            <span class="tag active" data-val="Desktop">Desktop</span>
+            <span class="tag" data-val="Tablet">Tablet</span>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top: 1.25rem;">
+          <label>Secciones a generar</label>
+          <div class="checkbox-group" style="margin-top: 8px;">
+            <label class="checkbox-item"><input type="checkbox" checked id="s-anatomy"> Anatomía</label>
+            <label class="checkbox-item"><input type="checkbox" checked id="s-behavior"> Comportamientos</label>
+            <label class="checkbox-item"><input type="checkbox" checked id="s-specs"> Especificaciones de layout</label>
+            <label class="checkbox-item"><input type="checkbox" checked id="s-a11y"> Accesibilidad</label>
+            <label class="checkbox-item"><input type="checkbox" id="s-changelog"> ChangeLog</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tono de escritura</div>
+        <div class="form-row">
+          <label>El output seguirá el estilo del Monkey DS</label>
+          <div class="tag-row">
+            <span class="tag active">Español</span>
+            <span class="tag active">Directo</span>
+            <span class="tag active">Técnico</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="card-title">API Key</div>
+    <div class="form-row" style="margin-bottom:6px;">
+      <label>Anthropic API Key <span style="color:var(--text-3);font-weight:400">— no se guarda, solo se usa en esta sesión</span></label>
+      <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
+    </div>
+    <p style="font-size:12px;color:var(--text-3);margin-top:4px;">Obtené tu key en <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--green);">console.anthropic.com</a>. Se borra al recargar la página.</p>
+  </div>
+
+  <button class="btn-generate" id="btn-gen" onclick="generateDoc()">Generar documentación →</button>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Generando documentación con Claude...
+  </div>
+
+  <div class="output-area" id="output-area">
+    <div class="output-header">
+      <div class="output-title" id="output-title">Documentación generada</div>
+      <div class="output-actions">
+        <button class="btn-action" onclick="copyOutput()">Copiar texto</button>
+        <button class="btn-action primary" onclick="downloadOutput()">Descargar .md</button>
+      </div>
+    </div>
+    <div class="output-content" id="output-content"></div>
+  </div>
+</div>
+
+<div class="footer">
+  Monkey Design System · © 2025 · Generado con Claude API
+</div>
+
+<script>
+  let currentMode = 'manual';
+  let imageBase64 = null;
+  let imageMimeType = null;
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('panel-manual').classList.toggle('active', mode === 'manual');
+    document.getElementById('panel-image').classList.toggle('active', mode === 'image');
+    document.getElementById('btn-mode-manual').classList.toggle('active', mode === 'manual');
+    document.getElementById('btn-mode-image').classList.toggle('active', mode === 'image');
+  }
+
+  document.querySelectorAll('#device-tags .tag').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('active'));
+  });
+
+  function getDevices() {
+    const active = [...document.querySelectorAll('#device-tags .tag.active')].map(t => t.dataset.val);
+    return active.length ? active.join(', ') : 'Mobile y Desktop';
+  }
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('La imagen supera los 5MB.'); return; }
+    imageMimeType = file.type;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result.split(',')[1];
+      document.getElementById('preview-img').src = ev.target.result;
+      document.getElementById('img-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    imageBase64 = null; imageMimeType = null;
+    document.getElementById('img-input').value = '';
+    document.getElementById('img-preview').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+  }
+
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        imageBase64 = ev.target.result.split(',')[1];
+        imageMimeType = file.type;
+        document.getElementById('preview-img').src = ev.target.result;
+        document.getElementById('img-preview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function buildSystemPrompt() {
+    return `Sos un experto senior en design systems, accesibilidad web (WCAG 2.2) y documentación de componentes UI. Tu tarea es documentar componentes del Monkey Design System con el máximo nivel de detalle y utilidad para equipos de diseño y desarrollo.
+
+════════════════════════════════════════
+ESTRUCTURA BASE DE LA DOCUMENTACIÓN
+════════════════════════════════════════
+
+## [NombreComponente]
+[Descripción: 1-2 oraciones. Qué es, cuándo y para qué se usa. Si es atómico, molecular, sub-componente, o si depende de otro componente padre.]
+
+---
+
+## Anatomía
+[Elementos numerados con tipo de dato cuando aplique:]
+- "Label → String"
+- "Icon → Booleano"
+- "Visible → Booleano"
+- "XYZ → Booleano"
+[Para componentes de datos como tablas: describir columnas, filas, celdas, headers, footers y sus propiedades.]
+
+---
+
+## Token
+[Specs de layout con valores reales en px o rem. Separar por Device si hay diferencias:]
+
+**Device: Desktop**
+- w: [valor]
+- px: [valor] | py: [valor]
+- gap: [valor]
+- border-radius: [valor]
+- [otros tokens visibles o inferidos desde 8pt grid]
+
+**Device: Mobile** (omitir si no aplica o es igual a desktop)
+
+---
+
+## Consideraciones Generales
+[Sub-temas en pares columna izq / columna der. Incluir solo los que aplican. Lista completa de posibles sub-temas:]
+
+### Buenas prácticas
+[Incluir para componentes complejos como tablas, formularios, listas de datos. Reglas de uso correcto, límites, recomendaciones de UX.]
+
+### Semántica
+[Cuándo usar este componente vs otros similares. Reglas de elección.]
+
+### Uso
+[Casos de uso concretos: cuándo y cómo usar el componente.]
+
+### No usar
+[Anti-patterns. Cuándo NO usar este componente. Siempre incluir si hay riesgo de mal uso:]
+- Flujos principales o urgentes: [descripción]
+- Contenido persistente: [descripción]
+- Acciones críticas: [descripción]
+
+### Scroll
+[Comportamiento de scroll. Separar "Estado inicial" de "Cuando alcanza el límite del viewport". Para tablas: documentar Table.ScrollContainer aplicado al tbody.]
+
+### Ancho de columnas / Tamaños
+[Para tablas y componentes de datos: reglas de ancho mínimo por tipo de columna, con valores en px.]
+
+### Ambientes / Device
+[Desktop, Mobile, Tablet. Si funciona igual en todos o tiene variaciones.]
+
+### Espaciado
+[Reglas de espaciado entre instancias del componente.]
+
+### Alineaciones
+[Reglas de alineación de texto y contenido dentro del componente.]
+
+### Ordenamiento de filas / sort
+[Solo para tablas y listas. Cómo funciona el sort, estados del ícono, comportamiento.]
+
+### Header Fix / Fixes
+[Posición sticky del header o footer. Cuándo se activa, cómo se implementa.]
+
+### Onclick / Interacción
+[Qué ocurre al hacer click en una fila, celda, header, etc.]
+
+### Botones en el componente / Jerarquía de botones
+[Reglas de jerarquía para botones dentro del componente. Cuándo usar primary vs outline. Restricciones de tamaño.]
+
+### Motion / Animación
+[Si tiene animación: dirección, duración en ms, easing. Siempre mencionar prefers-reduced-motion.]
+
+### Cuándo usar X vs Y
+[Cuando hay componentes similares que generan confusión: Loader vs Skeleton, Modal vs Drawer, etc.]
+
+### Texto de apoyo
+[Reglas de copy: cuándo incluir texto de apoyo, cómo escribirlo.]
+
+### Alineación según contenido
+[Cuando el layout cambia según el contenido: texto largo, sin título, etc.]
+
+### Posición
+[Posición en el layout, relación con otros componentes.]
+
+### Atomicidad / Propósito
+[Si el componente es atómico y no debe usarse fuera de su contexto padre.]
+
+---
+
+## Variantes
+[Incluir SOLO si el componente tiene sub-componentes o partes con comportamiento documentable independiente.]
+[Para tablas: TableRow y TableItem con sus propiedades y reglas.]
+[Para otros: describir cada variante relevante con sus reglas de uso.]
+
+---
+
+## Estados
+[Incluir SOLO si el componente tiene estados interactivos visibles.]
+- **Default**: [descripción]
+- **Hover**: [descripción]
+- **Active / Filled**: [descripción]
+- **Disabled**: [descripción — mencionar "opacidad al 35%" si aplica]
+- **Genérico - Solo para Figma**: Estado visual exclusivo de Figma. No implementar en desarrollo ni exportar a producción. Se usa para evitar conflictos en el orden de funcionalidades cuando varios equipos trabajan sobre archivos distintos.
+
+---
+
+## Cómo se usa
+[Incluir cuando el componente tiene variantes semánticas (success/error/warning/info/campanita) o múltiples casos de uso que requieren ejemplos con copy real entre comillas.]
+
+---
+
+## Accesibilidad
+[SECCIÓN CRÍTICA. Nivel de detalle proporcional a la complejidad. Para tablas es muy extenso.]
+
+### Semántica HTML / Estructura
+[Elementos HTML recomendados y atributos ARIA estructurales:]
+
+**Estructura HTML recomendada:**
+- Usar <table> con <thead>, <tbody>, <tfoot> según corresponda
+- <th scope="col"> para encabezados de columna
+- <th scope="row"> para encabezados de fila
+- caption o aria-label en el <table> para describir su propósito
+- Si la librería (Mantine u otra) genera el HTML automáticamente, aclararlo
+
+**ARIA requerido:**
+- role apropiado: [grid / table / dialog / status / alert / navigation / button / etc.]
+- aria-label="[valor real y específico]" — NUNCA genérico
+- aria-labelledby / aria-describedby cuando aplique
+- aria-modal="true" para overlays
+- aria-expanded="true/false" para elementos expandibles
+- aria-hidden="true" para elementos decorativos
+- aria-live="polite" para actualizaciones no urgentes | "assertive" SOLO para errores críticos
+- aria-busy="true/false" para estados de carga
+- aria-sort="ascending/descending/none" para columnas ordenables
+- aria-checked para checkboxes en tablas
+- aria-selected para filas seleccionadas
+
+**Aclarar qué maneja la librería automáticamente vs qué requiere implementación manual**
+
+### Navegación por teclado
+- Tab: [comportamiento específico — navegación entre celdas interactivas]
+- Flechas (↑↓←→): [si hay navegación por grilla]
+- Enter / Space: [activar celda, expandir, seleccionar]
+- Escape: [cancelar selección, cerrar overlay]
+- Home / End: [ir a primera/última celda de la fila]
+- Ctrl+Home / Ctrl+End: [ir a primera/última celda de la tabla]
+- Shift+Tab: [foco inverso]
+- AutoReading: al navegar por celdas, el lector debe anunciar "[valor de celda], [encabezado de columna]"
+
+### Lector de pantalla
+[Separar en sub-casos si el componente tiene variantes que afectan la accesibilidad:]
+- Sin label / Con label
+- Tabla simple / Tabla con acciones
+- Fila seleccionable / Fila no seleccionable
+- Con sort / Sin sort
+
+Para cada caso especificar aria exacto con valores reales.
+
+### Contraste y color (WCAG 2.2 AA)
+- Texto sobre fondo: mínimo 4.5:1
+- Componentes UI e iconos interactivos: mínimo 3:1
+- No usar color como único medio para comunicar estado (especialmente en tablas con estados de fila)
+- Zebra striping: verificar que el contraste entre filas par/impar supere 3:1 para el fondo
+
+### Movimiento y animación
+[Solo si aplica. Incluir prefers-reduced-motion siempre.]
+
+### Tamaño de área de toque
+- Mínimo 44×44px para todos los targets interactivos (WCAG 2.5.5)
+- Especial atención a: botones de acción en celdas, checkboxes, íconos de sort, botón cerrar
+
+---
+
+## ChangeLog
+Ver el changelog de todos los componentes de este Design System → [Sheet de ChangeLog]
+
+════════════════════════════════════════
+REGLAS ESTRICTAS DE TONO Y ESTILO
+════════════════════════════════════════
+
+TONO:
+- Español, directo, imperativo: "Recuerden usar...", "No modificar...", "Siempre usar <th scope>...", "Usar aria-hidden='true' en el ícono decorativo"
+- Técnico pero legible para diseñadores senior
+- Incorrecto: frases pasivas como "se recomienda que..." o "podría ser..."
+
+ESTRUCTURA:
+- Bullet points dentro de sub-secciones
+- Negritas solo para términos técnicos clave o nombres de estados/variantes
+- No repetir información entre secciones
+- "Consideraciones Generales" en pares de columnas temáticos (izq/der)
+- No incluir secciones vacías — si no aplica al componente, omitirla
+- Para tablas y componentes de datos: ser especialmente detallado en Buenas prácticas, Semántica, Ancho de columnas y Accesibilidad
+
+ACCESIBILIDAD:
+- Valores aria REALES y ESPECÍFICOS: aria-label="Cerrar notificación", aria-label="Ordenar por fecha ascendente", NUNCA aria-label="texto del elemento"
+- WCAG 2.2 nivel AA mínimo
+- prefers-reduced-motion siempre que haya animación
+- aria-live="assertive" SOLO para errores críticos o alertas urgentes; "polite" para el resto
+- Focus trap + focus return en todo componente que bloquea el fondo
+- Para tablas: documentar navegación por grilla con flechas, anuncio de celda+encabezado, aria-sort
+- Si Mantine maneja algo automáticamente, aclararlo explícitamente
+
+TOKENS:
+- Valores visibles en la imagen tienen prioridad; si no se ven, inferir desde 8pt grid
+- Separar Desktop de Mobile cuando hay diferencias
+
+OUTPUT:
+- Markdown limpio, listo para Notion o Figma
+- Sin bloques de código envolventes al inicio/final
+- Sin comentarios ni meta-texto fuera de la documentación
+- Empezar directamente con ## [NombreComponente]`;
+  }
+
+  async function generateDoc() {
+    const sections = [];
+    if (document.getElementById('s-anatomy').checked) sections.push('Anatomía (con tipos de dato para cada elemento)');
+    if (document.getElementById('s-behavior').checked) sections.push('Consideraciones generales + secciones variables según tipo de componente (Buenas prácticas, Semántica, Variantes, Estados, Cómo se usa, No usar)');
+    if (document.getElementById('s-specs').checked) sections.push('Token con specs de layout (valores en px o rem, separados por Desktop y Mobile si aplica)');
+    if (document.getElementById('s-a11y').checked) sections.push('Accesibilidad completa WCAG 2.2 AA: semántica HTML, navegación por teclado, lector de pantalla con aria reales, contraste, prefers-reduced-motion, touch targets 44px');
+    if (document.getElementById('s-changelog').checked) sections.push('ChangeLog');
+
+    const btn = document.getElementById('btn-gen');
+    let messages;
+
+    if (currentMode === 'image') {
+      if (!imageBase64) { alert('Por favor subí una imagen del componente.'); return; }
+      const nameImg = document.getElementById('comp-name-img').value.trim();
+      const descImg = document.getElementById('comp-desc-img').value.trim();
+
+      const textPrompt = `Analizá visualmente esta imagen de un componente del Monkey Design System y generá su documentación completa.
+
+NOMBRE: ${nameImg || 'Inferir desde la imagen'}
+DESCRIPCIÓN ADICIONAL: ${descImg || 'Ninguna — basate en lo que ves'}
+DEVICES: ${getDevices()}
+SECCIONES: ${sections.join(' | ')}
+
+Al analizar identificá:
+- Tipo de componente (atómico, molecular, overlay, tabla/datos, navegación, feedback, sub-componente)
+- Todos los elementos, variantes, tamaños y estados visibles
+- Valores de spacing/padding/gap/border-radius si son visibles en la imagen
+- Si tiene animación → documentar motion + prefers-reduced-motion
+- Si bloquea el fondo → focus trap + focus return
+- Si es tabla/datos → buenas prácticas, ancho de columnas, sort, semántica HTML completa, navegación por grilla
+- Si tiene variantes semánticas → "Cómo se usa" con copy real
+- Si hay anti-patterns → "No usar"
+- Si tiene sub-componentes documentables → "Variantes"
+- Si tiene jerarquía de botones interna → "Jerarquía de botones"
+
+Generá la documentación completa siguiendo el sistema de instrucciones recibido.`;
+
+      messages = [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: imageMimeType, data: imageBase64 } },
+        { type: 'text', text: textPrompt }
+      ]}];
+
+    } else {
+      const name = document.getElementById('comp-name').value.trim();
+      if (!name) { document.getElementById('comp-name').focus(); return; }
+      const desc = document.getElementById('comp-desc').value.trim();
+      const anatomy = document.getElementById('comp-anatomy').value.trim();
+      const notes = document.getElementById('comp-notes').value.trim();
+
+      const userPrompt = `Documentá el componente "${name}" del Monkey Design System.
+
+DESCRIPCIÓN: ${desc || 'Inferir según nombre y tipo de componente'}
+ELEMENTOS ANATÓMICOS: ${anatomy || 'Inferir con tipos de dato (→ String, → Booleano, etc.)'}
+DEVICES: ${getDevices()}
+NOTAS / RESTRICCIONES: ${notes || 'Ninguna'}
+SECCIONES: ${sections.join(' | ')}
+
+Determiná automáticamente el tipo de componente y aplicá las secciones variables:
+- Componente de datos/tabla → Buenas prácticas, Semántica, Ancho de columnas, Sort, Variantes, accesibilidad con semántica HTML y navegación por grilla
+- Interactivo con estados → Estados (incluir "Genérico - Solo para Figma" si aplica)
+- Variantes semánticas → Cómo se usa con copy real
+- Anti-patterns claros → No usar
+- Animación → Motion + prefers-reduced-motion
+- Overlay/bloquea fondo → Focus trap + focus return
+- Sub-componentes documentables → Variantes
+- Jerarquía de botones interna → Jerarquía de botones
+
+Generá la documentación completa siguiendo el sistema de instrucciones recibido.`;
+
+      messages = [{ role: 'user', content: userPrompt }];
+    }
+
+    btn.disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('output-area').style.display = 'none';
+
+    const apiKey = document.getElementById('api-key').value.trim();
+    if (!apiKey) {
+      alert('Ingresá tu API key de Anthropic antes de generar.');
+      document.getElementById('api-key').focus();
+      btn.disabled = false;
+      document.getElementById('loading').style.display = 'none';
+      return;
+    }
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-request-proxy': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          system: buildSystemPrompt(),
+          messages
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.map(b => b.text || '').join('') || 'Error al generar.';
+      const compName = currentMode === 'image'
+        ? (document.getElementById('comp-name-img').value.trim() || 'Componente')
+        : document.getElementById('comp-name').value.trim();
+      document.getElementById('output-content').textContent = text;
+      document.getElementById('output-title').textContent = 'Documentación: ' + compName;
+      document.getElementById('output-area').style.display = 'block';
+      document.getElementById('output-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+      document.getElementById('output-content').textContent = 'Error de conexión. Intentá de nuevo.';
+      document.getElementById('output-area').style.display = 'block';
+    }
+
+    btn.disabled = false;
+    document.getElementById('loading').style.display = 'none';
+  }
+
+  function copyOutput() {
+    navigator.clipboard.writeText(document.getElementById('output-content').textContent).then(() => {
+      const btn = document.querySelector('.btn-action');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => btn.textContent = orig, 2000);
+    });
+  }
+
+  function downloadOutput() {
+    const nameManual = document.getElementById('comp-name').value.trim();
+    const nameImg = document.getElementById('comp-name-img').value.trim();
+    const name = (currentMode === 'image' ? nameImg : nameManual) || 'componente';
+    const text = document.getElementById('output-content').textContent;
+    const blob = new Blob([text], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name.replace(/\s+/g, '-').toLowerCase() + '-doc.md';
+    a.click();
+  }
+</script>
+</body>
+</html>
