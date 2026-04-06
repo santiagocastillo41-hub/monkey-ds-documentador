@@ -949,14 +949,24 @@ Generá la documentación completa siguiendo el sistema de instrucciones recibid
       return;
     }
 
+    // Reemplazá este valor con la URL de tu Cloudflare Worker después de crearlo
+    const WORKER_URL = 'https://santicastillo.santiagocastillo41.workers.dev/';
+
+    if (WORKER_URL === 'REEMPLAZAR_CON_URL_DEL_WORKER') {
+      document.getElementById('output-content').textContent = 'Configuración pendiente: reemplazá WORKER_URL en el código con la URL de tu Cloudflare Worker.';
+      document.getElementById('output-area').style.display = 'block';
+      btn.disabled = false;
+      document.getElementById('loading').style.display = 'none';
+      return;
+    }
+
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(WORKER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-request-proxy': 'true'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
@@ -965,6 +975,13 @@ Generá la documentación completa siguiendo el sistema de instrucciones recibid
           messages
         })
       });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        const msg = errData?.error?.message || 'Error ' + res.status;
+        throw new Error(msg);
+      }
+
       const data = await res.json();
       const text = data.content?.map(b => b.text || '').join('') || 'Error al generar.';
       const compName = currentMode === 'image'
